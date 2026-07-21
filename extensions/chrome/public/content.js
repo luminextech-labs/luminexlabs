@@ -162,12 +162,12 @@
 
     if (request.action === 'getLocalStorage') {
       // Get localStorage data
-      const localStorage = {}
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i)
-        localStorage[key] = localStorage.getItem(key)
+      const ls = {}
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const key = window.localStorage.key(i)
+        ls[key] = window.localStorage.getItem(key)
       }
-      sendResponse({ localStorage })
+      sendResponse(ls)
     }
   })
 
