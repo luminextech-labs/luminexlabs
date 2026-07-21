@@ -176,7 +176,8 @@ export default function VideoGeneratorPage() {
       ])
 
       const data = await ffmpeg.readFile('output.mp4')
-      const vBlob = new Blob([data], { type: 'video/mp4' })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const vBlob = new Blob([data as any], { type: 'video/mp4' })
       const vUrl = URL.createObjectURL(vBlob)
       setVideoBlob(vBlob)
       setVideoUrl(vUrl)
