@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { spawn } from 'child_process'
-import { promisify } from 'util'
-
-const exec = promisify(spawn)
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,23 +35,34 @@ async def main():
 asyncio.run(main())
 `
 
-    const result = await exec('python3', ['-c', pythonScript], {
-      input: JSON.stringify({ text, voice: voice || 'th-TH-NiwatNeural' }),
-      timeout: 30000,
+    const input = JSON.stringify({ text, voice: voice || 'th-TH-NiwatNeural' })
+
+    const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+      const proc = spawn('python3', ['-c', pythonScript], {
+        timeout: 30000,
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      proc.stdout.on('data', (data) => { stdout += data.toString() })
+      proc.stderr.on('data', (data) => { stderr += data.toString() })
+
+      proc.on('close', (code) => {
+        if (code === 0) resolve({ stdout, stderr })
+        else reject(new Error(stderr || `exit code ${code}`))
+      })
+
+      proc.on('error', reject)
+      proc.stdin.write(input)
+      proc.stdin.end()
     })
-
-    const stdout = result.stdout.toString()
-    const stderr = result.stderr.toString()
-
-    if (stderr && !stdout.includes('success')) {
-      console.error('TTS stderr:', stderr)
-    }
 
     let data
     try {
-      data = JSON.parse(stdout)
+      data = JSON.parse(result.stdout)
     } catch {
-      return NextResponse.json({ error: 'TTS failed', stderr }, { status: 500 })
+      return NextResponse.json({ error: 'TTS parse failed', stderr: result.stderr }, { status: 500 })
     }
 
     if (!data.success) {
