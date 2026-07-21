@@ -187,7 +187,7 @@ document.getElementById('btnRefreshData').addEventListener('click', () => {
 
 document.getElementById('openDashboard').addEventListener('click', (e) => {
   e.preventDefault()
-  chrome.tabs.create({ url: 'https://luminexlabs.com/dashboard' })
+  chrome.tabs.create({ url: 'https://luminexlabs-five.vercel.app/dashboard' })
 })
 
 // Init
